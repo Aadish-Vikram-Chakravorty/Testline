@@ -1,18 +1,20 @@
-const dataAnalysisService = require('../services/dataAnalysisService');
+const { getCurrentQuizData, getHistoricalQuizData } = require('../services/apiService');
 
-exports.predictRank = async (req, res) => {
-    try {
-        const { currentQuizData, userId } = req.body;
+const calculateRank = async (req, res) => {
+  const currentQuiz = await getCurrentQuizData();
+  const historicalData = await getHistoricalQuizData();
 
-        // Fetch historical data (using mock API)
-        const historicalData = await dataAnalysisService.fetchHistoricalData(userId);
+  if (!currentQuiz || !historicalData) {
+    return res.status(500).json({ message: 'Data fetching error' });
+  }
 
-        // Analyze data and predict rank
-        const predictedRank = dataAnalysisService.predictRank(currentQuizData, historicalData);
+  // Sample logic: Calculate average score
+  const totalScores = historicalData.map(item => item.score);
+  const averageScore = totalScores.reduce((a, b) => a + b, 0) / totalScores.length;
 
-        res.status(200).json({ predictedRank });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
+  const predictedRank = averageScore > currentQuiz.score ? 'Above Average' : 'Below Average';
+
+  res.json({ predictedRank, currentQuizScore: currentQuiz.score, averageScore });
 };
+
+module.exports = { calculateRank };

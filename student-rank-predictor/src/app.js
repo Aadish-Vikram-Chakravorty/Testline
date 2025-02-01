@@ -1,11 +1,11 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const rankController = require('./Controllers/rankController');
-
 const app = express();
-app.use(bodyParser.json());
+const quizRoutes = require('./routes/quizRoutes');
 
-app.post('/predict-rank', rankController.predictRank);
+app.use(express.json()); // Middleware to parse JSON
+app.use('/api/quiz', quizRoutes); // Route for quiz-related APIs
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${3000}`);
+});
